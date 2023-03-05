@@ -14,40 +14,40 @@ info = randi(2, 1, num_b) - 1;
     
 %% Codificador
 
-%%% Viterbi
-convolutional_machine = containers.Map();
+% Código Convolucional 1 com razão 1/2 
+convolutional_machine_one = containers.Map();
 
 % node = { edge_0 (next node, first output, second output), edge_1 (...) }
-convolutional_machine('00') = {{'00', 0, 0}, {'10', 1, 1}};
-convolutional_machine('10') = {{'01', 1, 0}, {'11', 0, 1}};
-convolutional_machine('11') = {{'01', 0, 1}, {'11', 1, 0}};
-convolutional_machine('01') = {{'00', 1, 1}, {'10', 0, 0}};
+convolutional_machine_one('00') = {{'00', 0, 0}, {'10', 1, 1}};
+convolutional_machine_one('10') = {{'01', 1, 0}, {'11', 0, 1}};
+convolutional_machine_one('11') = {{'01', 0, 1}, {'11', 1, 0}};
+convolutional_machine_one('01') = {{'00', 1, 1}, {'10', 0, 0}};
 
 % Sufixo para garantir que o estado final será 00
-convolutional_end = containers.Map();
-convolutional_end('00') = [0, 0, 0, 0, 0, 0];
-convolutional_end('10') = [0, 1, 0, 1, 1, 1];
-convolutional_end('11') = [0, 1, 1, 1, 0, 0];
-convolutional_end('01') = [1, 1, 0, 0, 0, 0];
+convolutional_one_end = containers.Map();
+convolutional_one_end('00') = [0, 0, 0, 0, 0, 0];
+convolutional_one_end('10') = [0, 1, 0, 1, 1, 1];
+convolutional_one_end('11') = [0, 1, 1, 1, 0, 0];
+convolutional_one_end('01') = [1, 1, 0, 0, 0, 0];
 
 current_state = '00';
-viterbi_info_size = num_b * 2 + 6;
-viterbi_info = zeros(1, viterbi_info_size);
+convolutional_one_size = num_b * 2 + 6;
+convolutional_one_info = zeros(1, convolutional_one_size);
 count = 1;
 
 for i = 1:num_b
-    state_node = convolutional_machine(current_state);
+    state_node = convolutional_machine_one(current_state);
     state_edge = state_node{info(i) + 1};
     current_state = state_edge{1};
-    viterbi_info(count) = state_edge{2};
+    convolutional_one_info(count) = state_edge{2};
     count = count + 1;
-    viterbi_info(count) = state_edge{3};
+    convolutional_one_info(count) = state_edge{3};
     count = count + 1;
 end
 
-viterbi_suffix = convolutional_end(current_state);
-for i = 1:length(viterbi_suffix)
-    viterbi_info(count) = viterbi_suffix(i);
+convolutional_one_suffix = convolutional_one_end(current_state);
+for i = 1:length(convolutional_one_suffix)
+    convolutional_one_info(count) = convolutional_one_suffix(i);
     count = count + 1;
 end
 
@@ -56,8 +56,8 @@ end
 %%% BPSK
 % Sem codificação
 info_bpsk = complex(2*info-1, 0);
-% Viterbi
-viterbi_info_bpsk = complex(2*viterbi_info-1, 0);
+% Convolucional 1
+convolutional_one_info_bpsk = complex(2*convolutional_one_info-1, 0);
 
 %%% 4-QAM
 % Bits | Q          | I
@@ -92,27 +92,27 @@ for i = 1:2:(length(info)-1)
     count = count + 1;
 end
 
-% Viterbi
-qam_size = viterbi_info_size / 2;
-viterbi_info_4qam_I = zeros(1, qam_size);
-viterbi_info_4qam_Q = zeros(1, qam_size);
+% Convolucional 1
+qam_size = convolutional_one_size / 2;
+convolutional_one_info_4qam_I = zeros(1, qam_size);
+convolutional_one_info_4qam_Q = zeros(1, qam_size);
 count = 1;
-for i = 1:2:(viterbi_info_size-1)
-    if viterbi_info(i) == 0
-        if viterbi_info(i+1) == 0 %% 00
-            viterbi_info_4qam_I(count) = sqrt(2)/2;
-            viterbi_info_4qam_Q(count) = sqrt(2)/2;
+for i = 1:2:(convolutional_one_size-1)
+    if convolutional_one_info(i) == 0
+        if convolutional_one_info(i+1) == 0 %% 00
+            convolutional_one_info_4qam_I(count) = sqrt(2)/2;
+            convolutional_one_info_4qam_Q(count) = sqrt(2)/2;
         else %% 01
-            viterbi_info_4qam_I(count) = -1 * sqrt(2)/2;
-            viterbi_info_4qam_Q(count) = sqrt(2)/2;
+            convolutional_one_info_4qam_I(count) = -1 * sqrt(2)/2;
+            convolutional_one_info_4qam_Q(count) = sqrt(2)/2;
         end
     else 
-        if viterbi_info(i+1) == 0 %% 10
-            viterbi_info_4qam_I(count) = sqrt(2)/2;
-            viterbi_info_4qam_Q(count) = -1 * sqrt(2)/2;
+        if convolutional_one_info(i+1) == 0 %% 10
+            convolutional_one_info_4qam_I(count) = sqrt(2)/2;
+            convolutional_one_info_4qam_Q(count) = -1 * sqrt(2)/2;
         else %% 11
-            viterbi_info_4qam_I(count) = -1 * sqrt(2)/2;
-            viterbi_info_4qam_Q(count) = -1 * sqrt(2)/2;
+            convolutional_one_info_4qam_I(count) = -1 * sqrt(2)/2;
+            convolutional_one_info_4qam_Q(count) = -1 * sqrt(2)/2;
         end
     end
     count = count + 1;
@@ -148,23 +148,23 @@ for i = 1:length(Eb_N0_lin)
         end
     end
     
-    disp('Sem codificação BPSK');
+    disp('Sem codificação com BPSK');
     disp(sum(info ~= demod));
                 
     % Contagem de erros e cálculo do BER
-    % ber(i) = sum(bits ~= demod) / viterbi_info_size; 
+    % ber(i) = sum(bits ~= demod) / convolutional_one_size; 
 end
 
-% Viterbi
+% Convolucional 1
 for i = 1:length(Eb_N0_lin)
     % Vetor de ruído complexo com desvio padrão igual a uma posição do vetor NA
-    n = NA(i)*complex(randn(1, viterbi_info_size), randn(1, viterbi_info_size))*sqrt(0.5); 
+    n = NA(i)*complex(randn(1, convolutional_one_size), randn(1, convolutional_one_size))*sqrt(0.5); 
    
     % Vetores recebido
-    viterbi_info_bpsk_with_noise = viterbi_info_bpsk; % + n; 
+    convolutional_one_info_bpsk_with_noise = convolutional_one_info_bpsk; % + n; 
         
     % Recupera a informação (sinal da parte real)
-    real_info_with_noise = real(viterbi_info_bpsk_with_noise);
+    real_info_with_noise = real(convolutional_one_info_bpsk_with_noise);
     
     %%% Demodulação    
     demod = zeros(1, length(real_info_with_noise));
@@ -176,7 +176,7 @@ for i = 1:length(Eb_N0_lin)
         end
     end
     
-    %%% Decodificação   
+    %%% Decodificação usando Viterbi
     % Sequências atuais e distância total para cada estado
     viterbi_machine = containers.Map();
     viterbi_machine('00') = {[], 0};
@@ -340,11 +340,11 @@ for i = 1:length(Eb_N0_lin)
     % Remove o sufixo do código convolucional
     decoded_sequence = decoded_sequence(1:end-3);
     
-    disp('Viterbi BPSK');
+    disp('Convolucional 1 com BPSK');
     disp(sum(info ~= decoded_sequence));
                 
     % Contagem de erros e cálculo do BER
-    % ber(i) = sum(bits ~= demod) / viterbi_info_size; 
+    % ber(i) = sum(bits ~= demod) / convolutional_one_size; 
 end
 
 %% Receptor com 4-QAM
@@ -388,28 +388,28 @@ for i = 1:length(Eb_N0_lin)
         count = count + 2;
     end
     
-    disp('Sem codificação 4QAM');
+    disp('Sem codificação com 4QAM');
     disp(sum(info ~= demod));
                 
     % Contagem de erros e cálculo do BER
-    % ber(i) = sum(bits ~= demod) / viterbi_info_size; 
+    % ber(i) = sum(bits ~= demod) / convolutional_one_size; 
 end
 
-% Viterbi
+% Convolucional 1
 for i = 1:length(Eb_N0_lin)
     % Vetor de ruído complexo com desvio padrão igual a uma posição do vetor NA
-    n = NA(i)*complex(randn(1, viterbi_info_size / 2), randn(1, viterbi_info_size / 2))*sqrt(0.5); 
+    n = NA(i)*complex(randn(1, convolutional_one_size / 2), randn(1, convolutional_one_size / 2))*sqrt(0.5); 
    
     % Vetores recebido
-    viterbi_I_with_noise = real(viterbi_info_4qam_I + n); 
-    viterbi_Q_with_noise = real(viterbi_info_4qam_Q + n); 
+    I_with_noise = real(convolutional_one_info_4qam_I + n); 
+    Q_with_noise = real(convolutional_one_info_4qam_Q + n); 
      
     %%% Demodulação            
-    demod = zeros(1, length(viterbi_I_with_noise) * 2);
+    demod = zeros(1, length(I_with_noise) * 2);
     count = 1;
-    for x = 1:length(viterbi_I_with_noise)
-        if viterbi_I_with_noise(x) >= 0
-            if viterbi_Q_with_noise(x) >= 0
+    for x = 1:length(I_with_noise)
+        if I_with_noise(x) >= 0
+            if Q_with_noise(x) >= 0
                 demod(count) = 0;
                 demod(count + 1) = 0;
             else
@@ -417,7 +417,7 @@ for i = 1:length(Eb_N0_lin)
                 demod(count + 1) = 0;
             end
         else
-            if viterbi_Q_with_noise(x) >= 0
+            if Q_with_noise(x) >= 0
                 demod(count) = 0;
                 demod(count + 1) = 1;
             else
@@ -428,7 +428,7 @@ for i = 1:length(Eb_N0_lin)
         count = count + 2;
     end
     
-    %%% Decodificação   
+    %%% Decodificação usando Viterbi
     % Sequências atuais e distância total para cada estado
     viterbi_machine = containers.Map();
     viterbi_machine('00') = {[], 0};
@@ -592,11 +592,11 @@ for i = 1:length(Eb_N0_lin)
     % Remove o sufixo do código convolucional
     decoded_sequence = decoded_sequence(1:end-3);
     
-    disp('Viterbi 4QAM');
+    disp('Convolucional 1 com 4QAM');
     disp(sum(info ~= decoded_sequence));
                 
     % Contagem de erros e cálculo do BER
-    % ber(i) = sum(bits ~= demod) / viterbi_info_size; 
+    % ber(i) = sum(bits ~= demod) / convolutional_one_size; 
 end
 
 %% Avaliação resultado
