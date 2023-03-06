@@ -675,6 +675,181 @@ for i = 1:length(Eb_N0_lin)
 end
 
 %%% TODO: Receptor BPSK convolucional GSM
+%%% Convolucional 2
+% Pré-alocação do vetor BER
+ber_bpsk_convolutional_gsm = zeros(size(Eb_N0_lin)); 
+for i = 1:length(Eb_N0_lin)
+    % Vetor de ruído complexo com desvio padrão igual a uma posição do vetor NA
+    n = NA(i)*complex(randn(1, convolutional_gsm_size), randn(1, convolutional_gsm_size))*sqrt(0.5); 
+ 
+    % Recupera a informação com ruído (sinal da parte real)
+    real_info_with_noise = real(convolutional_gsm_info_bpsk ); % + n
+    
+    %%% Demodulação    
+    demod = zeros(1, length(real_info_with_noise));
+    for x = 1:length(real_info_with_noise)
+        if real_info_with_noise(x) > 0
+            demod(x) = 1;
+        else
+            demod(x) = 0;
+        end
+    end
+    
+    %%% Decodificação usando Viterbi
+    % Sequências atuais e distância total para cada estado
+    viterbi_machine = containers.Map();
+    viterbi_machine('a') = {[], 0};
+    viterbi_machine('b') = {};
+    viterbi_machine('c') = {};
+    viterbi_machine('d') = {};
+    viterbi_machine('e') = {};
+    viterbi_machine('f') = {};
+    viterbi_machine('g') = {};
+    viterbi_machine('h') = {};
+    viterbi_machine('i') = {};
+    viterbi_machine('j') = {};
+    viterbi_machine('k') = {};
+    viterbi_machine('l') = {};
+    viterbi_machine('m') = {};
+    viterbi_machine('n') = {};
+    viterbi_machine('o') = {};
+    viterbi_machine('p') = {};
+    
+    % Passa pelo input e determina as sequências possíveis para a saída
+    for x = 1:2:length(demod)-1
+        % Bits sendo lidos
+        first_bit = demod(x);
+        second_bit = demod(x + 1);
+
+        % Armazena estados atuais
+        previous_viterbi_machine = viterbi_machine;
+        
+        % Análise de deslocamento para a
+        for a = 1
+            a_difference = Inf;
+            b_difference = Inf;
+            a_state = previous_viterbi_machine('a');
+            b_state = previous_viterbi_machine('b');
+            if ~isempty(a_state)
+                a_difference = a_state{2};
+                if first_bit ~= 0
+                    a_difference = a_difference + 1;
+                end
+                if second_bit ~= 0
+                    a_difference = a_difference + 1;
+                end
+            end
+            if ~isempty(b_state)
+                b_difference = b_state{2};
+                if first_bit ~= 1
+                    b_difference = b_difference + 1;
+                end
+                if second_bit ~= 1
+                    b_difference = b_difference + 1;
+                end
+            end
+            if a_difference ~= Inf || b_difference ~= Inf
+                if a_difference <= b_difference
+                    new_bits = [a_state{1}, 0];
+                    new_difference = a_difference;
+                else
+                    new_bits = [b_state{1}, 0];
+                    new_difference = b_difference;
+                end
+                viterbi_machine('a') = { new_bits, new_difference };
+            else
+                viterbi_machine('a') = {};
+            end
+        end
+        
+        % Análise de deslocamento para b
+        for b = 1
+            c_difference = Inf;
+            d_difference = Inf;
+            c_state = previous_viterbi_machine('c');
+            d_state = previous_viterbi_machine('d');
+            if ~isempty(c_state)
+                c_difference = c_state{2};
+                if first_bit ~= 1
+                    c_difference = c_difference + 1;
+                end
+                if second_bit ~= 1
+                    c_difference = c_difference + 1;
+                end
+            end
+            if ~isempty(d_state)
+                d_difference = d_state{2};
+                if first_bit ~= 0
+                    d_difference = d_difference + 1;
+                end
+                if second_bit ~= 0
+                    d_difference = d_difference + 1;
+                end
+            end
+            if c_difference ~= Inf || d_difference ~= Inf
+                if c_difference <= d_difference
+                    new_bits = [c_state{1}, 0];
+                    new_difference = c_difference;
+                else
+                    new_bits = [d_state{1}, 0];
+                    new_difference = d_difference;
+                end
+                viterbi_machine('b') = { new_bits, new_difference };
+            else
+                viterbi_machine('b') = {};
+            end
+        end
+        
+        % Análise de deslocamento para c
+        for c = 1
+            e_difference = Inf;
+            f_difference = Inf;
+            e_state = previous_viterbi_machine('e');
+            f_state = previous_viterbi_machine('f');
+            if ~isempty(e_state)
+                e_difference = e_state{2};
+                if first_bit ~= 0
+                    e_difference = e_difference + 1;
+                end
+                if second_bit ~= 0
+                    e_difference = e_difference + 1;
+                end
+            end
+            if ~isempty(f_state)
+                f_difference = f_state{2};
+                if first_bit ~= 1
+                    f_difference = f_difference + 1;
+                end
+                if second_bit ~= 1
+                    f_difference = f_difference + 1;
+                end
+            end
+            if e_difference ~= Inf || f_difference ~= Inf
+                if e_difference <= f_difference
+                    new_bits = [e_state{1}, 0];
+                    new_difference = e_difference;
+                else
+                    new_bits = [f_state{1}, 0];
+                    new_difference = f_difference;
+                end
+                viterbi_machine('c') = { new_bits, new_difference };
+            else
+                viterbi_machine('c') = {};
+            end
+        end
+        
+    end
+    
+    % Seleciona o valor atual do estado 00
+    zero_zero_state = viterbi_machine('00');
+    decoded_sequence = zero_zero_state{1};
+    
+    % Remove o sufixo do código convolucional
+    decoded_sequence = decoded_sequence(1:end-4);
+                
+    % Contagem de erros e cálculo do BER
+    ber_bpsk_convolutional_two(i) = sum(info ~= decoded_sequence) / num_b; 
+end
 
 %% Receptor com 4-QAM
 % Energia por bit para a modulação 4-QAM utilizada
