@@ -3,7 +3,7 @@ close;
 
 %% Definições
 % Número de bits
-num_b = 100000;
+num_b = 1000000;
 % Faixa de Eb/N0
 Eb_N0_dB = 0:1:12;
 % Faixa de Eb/N0 linearizada
@@ -486,7 +486,7 @@ end
 %% Avaliação resultado
 
 % BER teórico para comparação
-semilogy(Eb_N0_dB, ber_qam_convolutional_gsm, 'x', Eb_N0_dB, ber_bpsk_convolutional_gsm, 'x', Eb_N0_dB, ber_qam_without_code, 'x', Eb_N0_dB, ber_qam_convolutional_one, 'x', Eb_N0_dB, ber_qam_convolutional_two, 'x', Eb_N0_dB, ber_bpsk_without_code, 'x', Eb_N0_dB, ber_bpsk_convolutional_one, 'x', Eb_N0_dB, ber_bpsk_convolutional_two, 'x', 'LineWidth', 2, 'MarkerSize', 10);
+semilogy(Eb_N0_dB, ber_qam_convolutional_gsm, 'r', Eb_N0_dB, ber_bpsk_convolutional_gsm, 'g', Eb_N0_dB, ber_qam_without_code, 'b', Eb_N0_dB, ber_qam_convolutional_one, 'c', Eb_N0_dB, ber_qam_convolutional_two, 'm', Eb_N0_dB, ber_bpsk_without_code, 'y', Eb_N0_dB, ber_bpsk_convolutional_one, 'b', Eb_N0_dB, ber_bpsk_convolutional_two, 'r', 'LineWidth', 2, 'MarkerSize', 10);
 xlabel('Eb/N0 (dB)');
 ylabel('BER');
 legend('4QAM GSM', 'BPSK GSM', '4QAM sem codificação', '4QAM com código convolucional de razão 1/2', '4QAM com código convolucional de razão 1/3', 'BPSK sem codificação', 'BPSK com código convolucional de razão 1/2', 'BPSK com código convolucional de razão 1/3');
