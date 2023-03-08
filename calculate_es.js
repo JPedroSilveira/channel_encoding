@@ -22,4 +22,4 @@ coordenadas.forEach(coordenada => {
     total += Math.pow(coordenada[0], 2) + Math.pow(coordenada[1], 2);
 });
 
-console.log(total);
+console.log(total/coordenadas.length);
