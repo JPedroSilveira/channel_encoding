@@ -5,7 +5,7 @@ close;
 %% Definições
 
 % Número de bits
-num_b = 10000000;
+num_b = 100000000;
 % Faixa de Eb/N0
 Eb_N0_dB = 0:1:20;
 % Faixa de Eb/N0 linearizada
